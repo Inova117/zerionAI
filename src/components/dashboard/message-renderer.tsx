@@ -20,7 +20,7 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
-  type?: 'text' | 'task_completion' | 'file_generated' | 'link_shared' | 'list';
+  type?: 'text' | 'task_completion' | 'file_generated' | 'link_shared' | 'list' | 'calendar_update';
   metadata?: any;
   followUpActions?: Array<{
     label: string;
