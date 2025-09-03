@@ -34,7 +34,7 @@ interface Message {
   role: 'user' | 'assistant';
   timestamp: Date;
   isTyping?: boolean;
-  type?: 'text' | 'task_completion' | 'file_generated' | 'link_shared' | 'list';
+  type?: 'text' | 'task_completion' | 'file_generated' | 'link_shared' | 'list' | 'calendar_update';
   metadata?: any;
   followUpActions?: Array<{
     label: string;

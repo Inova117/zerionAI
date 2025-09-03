@@ -47,8 +47,8 @@ export default function SettingsPage() {
     setTimezone(data.userProfile.personal.timezone);
     
     // Load audio settings
-    setAudioVolume(audioSystem.getVolume());
-    setAudioEnabled(audioSystem.isEnabled());
+    setAudioVolume(0.5); // Default volume
+    setAudioEnabled(true); // Default enabled
   }, []);
 
   const handleSaveProfile = () => {

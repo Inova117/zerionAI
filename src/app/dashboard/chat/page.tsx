@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChatInterface } from "@/components/dashboard/chat-interface";
 import { AssistantInfo } from "@/components/dashboard/assistant-info";
-import { assistants, getAssistantById } from "@/lib/assistants";
+import { assistants, getAssistantById, Assistant } from "@/lib/assistants";
 import { useAssistantStore } from "@/store/assistants";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
   const assistantId = searchParams.get('assistant');
-  const [selectedAssistant, setSelectedAssistant] = useState(null);
+  const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null);
   const { setActiveAssistant } = useAssistantStore();
 
   useEffect(() => {
