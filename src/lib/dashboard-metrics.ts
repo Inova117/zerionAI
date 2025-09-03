@@ -37,8 +37,20 @@ class DashboardMetricsManager {
   }
 
   private loadMetrics(): DashboardMetrics {
+    // Default metrics for server-side rendering
+    const defaultMetrics = {
+      tasksCompleted: 12,
+      timeSaved: 8.5,
+      activeAssistants: 3,
+      productivity: 87,
+      weeklyGoal: 25,
+      currentStreak: 3,
+      totalInteractions: 47,
+      lastUpdated: new Date()
+    };
+
     try {
-      if (typeof window === 'undefined') return this.getDefaultMetrics();
+      if (typeof window === 'undefined') return defaultMetrics;
       const saved = localStorage.getItem('dashboard_metrics');
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -51,17 +63,8 @@ class DashboardMetricsManager {
       console.warn('Failed to load metrics:', error);
     }
 
-    // Default metrics
-    return {
-      tasksCompleted: 12,
-      timeSaved: 8.5,
-      activeAssistants: 3,
-      productivity: 87,
-      weeklyGoal: 25,
-      currentStreak: 3,
-      totalInteractions: 47,
-      lastUpdated: new Date()
-    };
+    // Return default metrics if nothing found
+    return defaultMetrics;
   }
 
   private loadActivities(): ActivityEvent[] {

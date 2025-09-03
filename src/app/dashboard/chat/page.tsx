@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChatInterface } from "@/components/dashboard/chat-interface";
 import { AssistantInfo } from "@/components/dashboard/assistant-info";
 import { assistants, getAssistantById, Assistant } from "@/lib/assistants";
 import { useAssistantStore } from "@/store/assistants";
 
-export default function ChatPage() {
+function ChatPageContent() {
   const searchParams = useSearchParams();
   const assistantId = searchParams.get('assistant');
   const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null);
@@ -57,5 +57,15 @@ export default function ChatPage() {
         <ChatInterface assistant={selectedAssistant} />
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    </div>}>
+      <ChatPageContent />
+    </Suspense>
   );
 }

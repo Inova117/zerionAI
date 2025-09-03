@@ -17,6 +17,12 @@ export interface SmartResponse {
       date: string;
       time: string;
     };
+    // AI service metadata
+    ai_generated?: boolean;
+    confidence?: number;
+    cerebro_insights?: number;
+    cerebro_active?: boolean;
+    model?: string;
   };
   followUpActions?: Array<{
     label: string;

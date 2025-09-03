@@ -87,7 +87,7 @@ class HuggingFaceService {
 
       // Create contextualized prompt
       const contextualizedPrompt = getContextualizedPrompt(
-        assistantPrompt,
+        assistant.id,
         {
           name: 'Usuario',
           company: 'Mi Empresa',
@@ -95,8 +95,7 @@ class HuggingFaceService {
           currentProject: 'Optimización de negocio',
           relationshipLevel: 'familiar'
         },
-        conversationHistory,
-        userMessage
+        conversationHistory
       );
 
       // Format the prompt for the model
@@ -104,7 +103,7 @@ class HuggingFaceService {
 
       // Try primary model first
       let response: HuggingFaceResponse;
-      let usedModel = MODELS.primary;
+      let usedModel: string = MODELS.primary;
 
       try {
         response = await this.makeRequest(MODELS.primary, formattedPrompt);

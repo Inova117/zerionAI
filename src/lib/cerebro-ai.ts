@@ -147,7 +147,7 @@ class CerebroAI {
 
     try {
       // Obtener historial de conversaciones
-      const conversationHistory = conversationMemory.getConversationHistory(assistantId);
+      const conversationHistory = conversationMemory.getRecentMessages(assistantId, 20);
       const userMessages = conversationHistory.filter(m => m.role === 'user');
       
       // Crear prompt para análisis de comportamiento
@@ -450,5 +450,4 @@ class CerebroAI {
 // Export singleton instance
 export const cerebroAI = new CerebroAI();
 
-// Export types
-export type { CerebroMemory, CerebroInsight };
+// Types are already exported above

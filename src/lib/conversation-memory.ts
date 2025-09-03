@@ -34,6 +34,9 @@ class ConversationMemoryManager {
 
   private loadFromStorage() {
     try {
+      // Check if we're on the client side
+      if (typeof window === 'undefined') return;
+      
       const saved = localStorage.getItem('conversation_memory');
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -53,6 +56,9 @@ class ConversationMemoryManager {
 
   private saveToStorage() {
     try {
+      // Check if we're on the client side
+      if (typeof window === 'undefined') return;
+      
       localStorage.setItem('conversation_memory', JSON.stringify(this.storage));
     } catch (error) {
       console.warn('Failed to save conversation memory:', error);

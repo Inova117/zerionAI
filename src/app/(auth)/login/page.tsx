@@ -66,7 +66,7 @@ function LoginContent() {
 
 function RegistrationSuccessMessage() {
   // This would check URL params for success message
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const message = searchParams.get('message');
   
   if (message === 'registration-success') {
