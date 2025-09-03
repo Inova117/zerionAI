@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const { metrics, activities, isLoading } = useDashboardMetrics();
+  const { metrics, isLoading } = useDashboardMetrics();
   const [timeRange, setTimeRange] = useState('7d');
   const [brainData, setBrainData] = useState<any>(null);
 

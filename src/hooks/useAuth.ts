@@ -163,11 +163,17 @@ export function useAuth() {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    return { error };
+  };
+
   return {
     ...state,
     signIn,
     signUp,
     signOut,
+    resetPassword,
     updateProfile,
     canUseAssistant,
     getRemainingTasks,
