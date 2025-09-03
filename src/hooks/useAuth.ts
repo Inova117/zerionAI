@@ -115,7 +115,7 @@ export function useAuth() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(updates as any)
       .eq('id', state.user.id)
       .select()
       .single();
