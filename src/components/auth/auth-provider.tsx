@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import type { User } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Profile {
   id: string;
@@ -11,16 +12,27 @@ interface Profile {
   full_name?: string;
   avatar_url?: string;
   company_name?: string;
-  company_industry?: string;
+  industry?: string;
+  employee_count?: number;
+  plan_type?: string;
+  trial_ends_at?: string;
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
   onboarding_completed?: boolean;
   onboarding_step?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, userData?: any) => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateProfile: (data: Partial<Profile>) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -87,20 +99,127 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('¡Sesión iniciada correctamente!');
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      toast.error(error.message || 'Error al iniciar sesión');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string, userData?: any) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: userData?.fullName || '',
+            company_name: userData?.companyName || '',
+            industry: userData?.industry || '',
+            employee_count: userData?.employeeCount || null,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('¡Cuenta creada! Revisa tu email para confirmar.');
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      toast.error(error.message || 'Error al crear cuenta');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      toast.success('Sesión cerrada');
+      router.push('/login');
+    } catch (error: any) {
       console.error('Error signing out:', error);
+      toast.error('Error al cerrar sesión');
       throw error;
     }
-    router.push('/login');
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Email de recuperación enviado');
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      toast.error(error.message || 'Error al enviar email de recuperación');
+      throw error;
+    }
+  };
+
+  const updateProfile = async (data: Partial<Profile>) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert([
+          {
+            id: user.id,
+            ...data,
+            updated_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
+      await refreshProfile();
+      toast.success('Perfil actualizado');
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      toast.error(error.message || 'Error al actualizar perfil');
+      throw error;
+    }
   };
 
   const value = {
     user,
     profile,
     loading,
+    signIn,
+    signUp,
     signOut,
+    resetPassword,
+    updateProfile,
     refreshProfile,
   };
 
@@ -111,10 +230,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuthContext() {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
+
+// Keep the old export for backward compatibility
+export const useAuthContext = useAuth;

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from './auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,22 +29,11 @@ export function LoginForm() {
     setError('');
 
     try {
-      const { error } = await signIn(email, password);
-      
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          setError('Email o contraseña incorrectos. Por favor, verifica tus datos.');
-        } else if (error.message.includes('Email not confirmed')) {
-          setError('Por favor, confirma tu email antes de iniciar sesión.');
-        } else {
-          setError(error.message);
-        }
-      } else {
-        // Get redirect URL from query params or default to dashboard
-        const searchParams = new URLSearchParams(window.location.search);
-        const redirectTo = searchParams.get('redirectTo') || '/dashboard';
-        router.push(redirectTo);
-      }
+      await signIn(email, password);
+      // Success is handled by the auth provider, just redirect
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+      router.push(redirectTo);
     } catch (err: any) {
       setError('Error inesperado. Por favor, intenta de nuevo.');
       console.error('Login error:', err);

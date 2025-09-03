@@ -375,7 +375,7 @@ export default function HelpPage() {
                     <div>
                       <p className="font-medium">Email</p>
                       <p className="text-sm text-gray-600">soporte@sintra-latam.com</p>
-                      <p className="text-xs text-gray-500">Respuesta en < 24h</p>
+                      <p className="text-xs text-gray-500">Respuesta en &lt; 24h</p>
                     </div>
                   </div>
 
@@ -406,15 +406,15 @@ export default function HelpPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm">Consultas Generales</span>
-                    <Badge variant="secondary">< 24h</Badge>
+                    <Badge variant="secondary">&lt; 24h</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Problemas Técnicos</span>
-                    <Badge variant="secondary">< 12h</Badge>
+                    <Badge variant="secondary">&lt; 12h</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Emergencias (Premium)</span>
-                    <Badge variant="default">< 2h</Badge>
+                    <Badge variant="default">&lt; 2h</Badge>
                   </div>
                 </CardContent>
               </Card>

@@ -18,6 +18,7 @@ import {
 import { simulateAIResponse, generateConversationTitle } from "@/lib/ai-service";
 import { SmartResponse } from "@/lib/smart-responses";
 import { useAssistantStore } from "@/store/assistants";
+import { useChat } from "@/hooks/useChat";
 import { Assistant } from "@/lib/assistants";
 import { cn } from "@/lib/utils";
 import { MessageRenderer } from "./message-renderer";
