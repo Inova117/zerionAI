@@ -118,7 +118,7 @@ export async function simulateAIResponse(
         type: 'text',
         processingTime: aiResponse.processing_time,
         metadata: {
-          model: aiResponse.model,
+          // model: aiResponse.model, // Commented for type compatibility
           ai_generated: true,
           confidence: 0.8,
           cerebro_insights: cerebroInsights.length,
