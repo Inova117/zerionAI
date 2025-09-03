@@ -53,7 +53,7 @@ function LoginContent() {
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
               ¿Necesitas ayuda?{' '}
-              <Link href="/help" className="text-blue-600 hover:text-blue-500">
+              <Link href="/dashboard/help" className="text-blue-600 hover:text-blue-500">
                 Contacta soporte
               </Link>
             </p>
