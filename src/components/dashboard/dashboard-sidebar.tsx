@@ -34,6 +34,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
     { name: "Dashboard", href: "/dashboard", icon: Home, current: true },
     { name: "Conversaciones", href: "/dashboard/conversations", icon: MessageSquare, current: false },
     { name: "Cerebro AI", href: "/dashboard/brain", icon: Brain, current: false },
+    { name: "Cerebro Central", href: "/dashboard/brain/cerebro", icon: Brain, current: false, badge: "NEW" },
     { name: "Automatizaciones", href: "/dashboard/automations", icon: Bot, current: false },
     { name: "Analíticas", href: "/dashboard/analytics", icon: BarChart3, current: false },
     { name: "Configuración", href: "/dashboard/settings", icon: Settings, current: false },

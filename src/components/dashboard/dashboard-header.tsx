@@ -5,14 +5,21 @@ import { Badge } from "@/components/ui/badge";
 import { AutomationIndicator } from "./automation-indicator";
 import { ThemeToggle } from "./theme-toggle";
 import { AudioSettings } from "./audio-settings";
+import { AIStatus } from "./ai-status";
 import { 
   Menu, 
   Bell, 
   Search, 
   Plus,
   Zap,
-  MessageSquare
+  MessageSquare,
+  Brain
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAssistantStore } from "@/store/assistants";
 
 interface DashboardHeaderProps {
@@ -79,6 +86,18 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
               <span>2,847 tareas</span>
             </div>
           </div>
+
+          {/* AI Status */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="button-press">
+                <Brain className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <AIStatus />
+            </PopoverContent>
+          </Popover>
 
           {/* Audio Settings */}
           <AudioSettings />

@@ -2,6 +2,8 @@ import { Assistant } from './assistants';
 import { conversationMemory } from './conversation-memory';
 import { smartResponseGenerator, SmartResponse } from './smart-responses';
 import { dashboardMetrics } from './dashboard-metrics';
+import { huggingFaceService, AIResponse } from './huggingface-service';
+import { cerebroAI } from './cerebro-ai';
 
 // Simulated responses for each assistant
 const assistantResponses: Record<string, string[]> = {
@@ -79,7 +81,7 @@ const assistantResponses: Record<string, string[]> = {
   ]
 };
 
-// Enhanced AI response function with memory and context
+// AI response function using Hugging Face (with fallback to simulation)
 export async function simulateAIResponse(
   assistant: Assistant,
   userMessage: string,
@@ -88,7 +90,68 @@ export async function simulateAIResponse(
   // Add user message to memory
   conversationMemory.addMessage(assistant.id, 'user', userMessage);
 
-  // Generate intelligent response based on context
+  // 🧠 CEREBRO AI: Analizar comportamiento del usuario
+  const cerebroInsights = await cerebroAI.analyzeUserBehavior(assistant.id, {
+    message: userMessage,
+    timestamp: new Date(),
+    context: conversationHistory
+  });
+
+  // 🧠 CEREBRO AI: Actualizar relación con asistente
+  cerebroAI.updateAssistantRelationship(assistant.id, {
+    lastInteraction: new Date(),
+    interactionCount: (cerebroAI.getMemory().assistantRelationships[assistant.id]?.interactionCount || 0) + 1
+  });
+
+  try {
+    // Try Hugging Face first
+    const aiResponse = await huggingFaceService.generateResponse(
+      assistant,
+      userMessage,
+      conversationHistory
+    );
+
+    if (aiResponse.success) {
+      // Create SmartResponse from AI response
+      const smartResponse: SmartResponse = {
+        content: aiResponse.content,
+        type: 'text',
+        processingTime: aiResponse.processing_time,
+        metadata: {
+          model: aiResponse.model,
+          ai_generated: true,
+          confidence: 0.8,
+          cerebro_insights: cerebroInsights.length,
+          cerebro_active: true
+        }
+      };
+
+      // Add assistant response to memory
+      conversationMemory.addMessage(
+        assistant.id, 
+        'assistant', 
+        smartResponse.content, 
+        smartResponse.type,
+        smartResponse.metadata
+      );
+
+      // 🧠 CEREBRO AI: Registrar interacción exitosa
+      cerebroAI.updateAssistantRelationship(assistant.id, {
+        successfulTasks: (cerebroAI.getMemory().assistantRelationships[assistant.id]?.successfulTasks || 0) + 1
+      });
+
+      console.log(`✅ AI Response from ${aiResponse.model} in ${aiResponse.processing_time}ms`);
+      console.log(`🧠 Cerebro AI generated ${cerebroInsights.length} insights`);
+      return smartResponse;
+    } else {
+      console.warn('AI service failed, falling back to simulation:', aiResponse.error);
+    }
+  } catch (error) {
+    console.error('Error calling Hugging Face service:', error);
+  }
+
+  // Fallback to simulation if AI fails
+  console.log('🔄 Using simulation fallback');
   const smartResponse = smartResponseGenerator.generateContextualResponse(
     assistant,
     userMessage,
@@ -245,4 +308,43 @@ export function checkTaskLimits(plan: string, tasksThisMonth: number): {
   const canContinue = remaining > 0;
 
   return { canContinue, remaining, limit };
+}
+
+// Test Hugging Face connection
+export async function testAIConnection(): Promise<{
+  huggingface: { success: boolean; message: string };
+  models: Record<string, boolean>;
+}> {
+  try {
+    const hfTest = await huggingFaceService.testConnection();
+    const modelsStatus = await huggingFaceService.getModelsStatus();
+    
+    return {
+      huggingface: hfTest,
+      models: modelsStatus
+    };
+  } catch (error) {
+    return {
+      huggingface: {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      models: {}
+    };
+  }
+}
+
+// Get AI service status
+export function getAIServiceStatus(): {
+  mode: 'ai' | 'simulation' | 'hybrid';
+  provider: string;
+  fallbackEnabled: boolean;
+} {
+  const hasHFKey = !!process.env.NEXT_PUBLIC_HUGGINGFACE_API_KEY;
+  
+  return {
+    mode: hasHFKey ? 'hybrid' : 'simulation',
+    provider: hasHFKey ? 'Hugging Face' : 'Simulation',
+    fallbackEnabled: true
+  };
 }
