@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { User } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase-client';
+import type { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const loadProfile = async (userId: string) => {
     try {
@@ -190,13 +190,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { error } = await supabase
         .from('profiles')
-        .upsert([
-          {
-            id: user.id,
-            ...data,
-            updated_at: new Date().toISOString(),
-          },
-        ]);
+        .upsert({
+          id: user.id,
+          ...data,
+          updated_at: new Date().toISOString(),
+        } as any);
 
       if (error) {
         throw error;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase-client';
 import { useAuth } from '@/components/auth/auth-provider';
 import { Database } from '@/lib/supabase/types';
 import { toast } from 'sonner';
@@ -25,7 +25,7 @@ export function useChat(assistantId: string) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient() as any;
 
   // Load or create conversation
   useEffect(() => {
@@ -69,8 +69,10 @@ export function useChat(assistantId: string) {
           existingConv = newConv;
         }
 
-        setConversation(existingConv);
-        await loadMessages(existingConv.id);
+        if (existingConv) {
+          setConversation(existingConv);
+          await loadMessages(existingConv.id);
+        }
       } catch (error) {
         console.error('Error in loadConversation:', error);
         toast.error('Error al cargar conversación');
@@ -116,7 +118,7 @@ export function useChat(assistantId: string) {
           table: 'messages',
           filter: `conversation_id=eq.${conversation.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const newMessage = payload.new as ChatMessage;
           setMessages((current) => {
             // Avoid duplicates
