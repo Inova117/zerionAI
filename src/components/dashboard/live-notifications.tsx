@@ -20,7 +20,7 @@ interface Notification {
   id: string;
   activityId: string;
   message: string;
-  type: 'task_completed' | 'file_generated' | 'automation_setup' | 'milestone_reached';
+  type: 'task_completed' | 'file_generated' | 'automation_setup' | 'milestone_reached' | 'insight_generated' | 'message_sent' | 'system_event';
   assistantName: string;
   timestamp: Date;
   isRead: boolean;
@@ -41,9 +41,9 @@ export function LiveNotifications() {
         id: `notif_${activity.id}_${Date.now()}`,
         activityId: activity.id || `activity_${Date.now()}`,
         message: generateNotificationMessage(activity),
-        type: activity.type,
+        type: activity.type as 'task_completed' | 'file_generated' | 'automation_setup' | 'milestone_reached' | 'insight_generated' | 'message_sent' | 'system_event',
         assistantName: activity.assistant_name,
-        timestamp: activity.created_at || new Date(),
+        timestamp: activity.created_at ? new Date(activity.created_at) : new Date(),
         isRead: false
       }));
 
@@ -64,6 +64,15 @@ export function LiveNotifications() {
               break;
             case 'milestone_reached':
               audioSystem.playMilestone();
+              break;
+            case 'insight_generated':
+              audioSystem.playNotification();
+              break;
+            case 'message_sent':
+              audioSystem.playNotification();
+              break;
+            case 'system_event':
+              audioSystem.playNotification();
               break;
             default:
               audioSystem.playNotification();
@@ -89,11 +98,16 @@ export function LiveNotifications() {
   }, [notifications, dismissedIds]);
 
   const generateNotificationMessage = (activity: any): string => {
+    const assistantName = activity.assistant_name || activity.assistantName || 'Asistente';
+    
     const messages = {
-      'task_completed': `${activity.assistantName} completó una tarea`,
-      'file_generated': `${activity.assistantName} generó un archivo`,
-      'automation_setup': `${activity.assistantName} configuró una automatización`,
-      'milestone_reached': '🎉 ¡Nuevo hito alcanzado!'
+      'task_completed': `${assistantName} completó una tarea`,
+      'file_generated': `${assistantName} generó un archivo`,
+      'automation_setup': `${assistantName} configuró una automatización`,
+      'milestone_reached': '🎉 ¡Nuevo hito alcanzado!',
+      'insight_generated': `${assistantName} generó un nuevo insight`,
+      'message_sent': `${assistantName} envió un mensaje`,
+      'system_event': 'Evento del sistema'
     };
 
     return messages[activity.type as keyof typeof messages] || 'Nueva actividad';
@@ -109,6 +123,12 @@ export function LiveNotifications() {
         return <Settings className="w-5 h-5 text-purple-500" />;
       case 'milestone_reached':
         return <Trophy className="w-5 h-5 text-yellow-500" />;
+      case 'insight_generated':
+        return <Bell className="w-5 h-5 text-cyan-500" />;
+      case 'message_sent':
+        return <Bell className="w-5 h-5 text-blue-400" />;
+      case 'system_event':
+        return <Bell className="w-5 h-5 text-gray-400" />;
       default:
         return <Bell className="w-5 h-5 text-gray-500" />;
     }
@@ -124,6 +144,12 @@ export function LiveNotifications() {
         return 'border-purple-200 bg-purple-50';
       case 'milestone_reached':
         return 'border-yellow-200 bg-yellow-50';
+      case 'insight_generated':
+        return 'border-cyan-200 bg-cyan-50';
+      case 'message_sent':
+        return 'border-blue-200 bg-blue-50';
+      case 'system_event':
+        return 'border-gray-200 bg-gray-50';
       default:
         return 'border-gray-200 bg-gray-50';
     }
@@ -196,9 +222,9 @@ export function LiveNotifications() {
                     {/* Show time saved if available */}
                     {(() => {
                       const activity = activities.find(a => a.id === notification.activityId);
-                      return activity?.metadata?.timeSaved && (
+                      return activity?.metadata?.time_saved && (
                         <span className="text-xs text-green-600 font-medium">
-                          +{activity.metadata.timeSaved}h
+                          +{activity.metadata.time_saved}h
                         </span>
                       );
                     })()}

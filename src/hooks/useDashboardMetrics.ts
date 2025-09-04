@@ -26,8 +26,7 @@ export function useDashboardMetrics() {
     isLoading,
     onTaskCompleted: dashboardMetrics.onTaskCompleted.bind(dashboardMetrics),
     onFileGenerated: dashboardMetrics.onFileGenerated.bind(dashboardMetrics),
-    onAutomationSetup: dashboardMetrics.onAutomationSetup.bind(dashboardMetrics),
-    resetMetrics: dashboardMetrics.resetMetrics.bind(dashboardMetrics)
+    onAutomationSetup: dashboardMetrics.onAutomationSetup.bind(dashboardMetrics)
   };
 }
 

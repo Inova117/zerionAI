@@ -123,7 +123,7 @@ export function RecentActivity() {
         <ScrollArea className="h-96 custom-scrollbar">
           <div className="space-y-4">
             {activities.map((activity) => {
-              const assistant = getAssistantInfo(activity.assistantId) || {
+              const assistant = getAssistantInfo(activity.assistant_id) || {
                 id: 'system',
                 name: 'Sistema',
                 avatar: '🤖',
@@ -151,23 +151,23 @@ export function RecentActivity() {
                           {getActivityIcon(activity.type)}
                         </div>
                         <div className="flex items-center space-x-3 mb-2">
-                          <span className="text-xs text-gray-500">{formatRelativeTime(activity.timestamp)}</span>
+                          <span className="text-xs text-gray-500">{formatRelativeTime(activity.created_at ? new Date(activity.created_at) : new Date())}</span>
                           <span className="text-xs text-gray-400">•</span>
-                          <span className="text-xs font-medium text-gray-600">{activity.assistantName}</span>
-                          {activity.metadata?.timeSaved && (
+                          <span className="text-xs font-medium text-gray-600">{activity.assistant_name}</span>
+                          {activity.metadata?.time_saved && (
                             <>
                               <span className="text-xs text-gray-400">•</span>
                               <span className="text-xs text-green-600 font-medium">
-                                +{activity.metadata.timeSaved}h ahorradas
+                                +{activity.metadata.time_saved}h ahorradas
                               </span>
                             </>
                           )}
                         </div>
-                        {activity.metadata?.fileName && (
+                        {activity.metadata?.file_name && (
                           <div className="flex items-center space-x-2 mt-2">
                             <FileText className="w-3 h-3 text-gray-400" />
                             <span className="text-xs text-gray-500 truncate">
-                              {activity.metadata.fileName}
+                              {activity.metadata.file_name}
                             </span>
                           </div>
                         )}
