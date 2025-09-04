@@ -39,11 +39,11 @@ export function LiveNotifications() {
       
       const newNotifications = newActivities.map(activity => ({
         id: `notif_${activity.id}_${Date.now()}`,
-        activityId: activity.id,
+        activityId: activity.id || `activity_${Date.now()}`,
         message: generateNotificationMessage(activity),
         type: activity.type,
-        assistantName: activity.assistantName,
-        timestamp: activity.timestamp,
+        assistantName: activity.assistant_name,
+        timestamp: activity.created_at || new Date(),
         isRead: false
       }));
 

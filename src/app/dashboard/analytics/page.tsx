@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
-import { brainAI } from '@/lib/brain-ai';
+import { cerebroAIV2 } from '@/lib/cerebro-ai-v2';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -29,7 +29,21 @@ export default function AnalyticsPage() {
   const [brainData, setBrainData] = useState<any>(null);
 
   useEffect(() => {
-    setBrainData(brainAI.getBrainAIData());
+    // Cargar datos del Cerebro AI V2
+    const loadCerebroData = async () => {
+      try {
+        const userId = await cerebroAIV2.getCurrentUserId();
+        if (userId) {
+          const userProfile = await cerebroAIV2.getUserProfile();
+          const insights = await cerebroAIV2.getRecentInsights(5);
+          setBrainData({ userProfile, insights });
+        }
+      } catch (error) {
+        console.warn('Error loading cerebro data:', error);
+        setBrainData(null);
+      }
+    };
+    loadCerebroData();
   }, []);
 
   if (isLoading) {

@@ -10,37 +10,59 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cerebroAI, CerebroMemory } from '@/lib/cerebro-ai';
+import { cerebroAIV2 } from '@/lib/cerebro-ai-v2';
 import { Brain, Zap, TrendingUp, Users, Target, Lightbulb, Activity, RefreshCw, Eye, BarChart3 } from 'lucide-react';
 
 export default function CerebroAIPage() {
-  const [cerebroMemory, setCerebroMemory] = useState<CerebroMemory | null>(null);
+  const [cerebroData, setCerebroData] = useState<any>(null);
   const [predictions, setPredictions] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadCerebroData();
   }, []);
 
-  const loadCerebroData = () => {
-    const memory = cerebroAI.getMemory();
-    setCerebroMemory(memory);
-    setLastUpdate(new Date());
+  const loadCerebroData = async () => {
+    setIsLoading(true);
+    try {
+      const userId = await cerebroAIV2.getCurrentUserId();
+      if (userId) {
+        const userProfile = await cerebroAIV2.getUserProfile();
+        const insights = await cerebroAIV2.getRecentInsights(10);
+
+        setCerebroData({
+          userProfile,
+          insights,
+          userId
+        });
+      }
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error loading Cerebro AI V2 data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const performAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-      // Realizar análisis predictivo
-      const userPredictions = await cerebroAI.predictUserNeeds();
-      setPredictions(userPredictions);
-      
-      // Realizar análisis cruzado
-      await cerebroAI.performCrossAssistantAnalysis();
+      if (cerebroData?.userId) {
+        // Simular análisis (en el futuro se conectará a IA real)
+        console.log('Realizando análisis manual del Cerebro AI...');
+
+        // Simular predicciones (en el futuro será IA real)
+        setPredictions({
+          immediateNeeds: ['Optimizar flujo de trabajo', 'Mejorar métricas'],
+          upcomingOpportunidades: ['Automatización avanzada', 'Nuevas integraciones'],
+          recommendedActions: ['Revisar configuraciones', 'Actualizar preferencias']
+        });
+      }
       
       // Recargar datos
-      loadCerebroData();
+      await loadCerebroData();
     } catch (error) {
       console.error('Error in Cerebro analysis:', error);
     } finally {
@@ -48,12 +70,12 @@ export default function CerebroAIPage() {
     }
   };
 
-  if (!cerebroMemory) {
+  if (isLoading || !cerebroData) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <Brain className="h-12 w-12 mx-auto mb-4 text-gray-400 animate-pulse" />
-          <p className="text-gray-500">Cargando Cerebro AI...</p>
+          <p className="text-gray-500">Cargando Cerebro AI V2...</p>
         </div>
       </div>
     );
@@ -101,7 +123,7 @@ export default function CerebroAIPage() {
               <Lightbulb className="h-4 w-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{cerebroMemory.crossAssistantInsights.length}</div>
+              <div className="text-2xl font-bold">{cerebroData?.insights?.length || 0}</div>
               <p className="text-xs text-gray-500">Descubrimientos activos</p>
             </CardContent>
           </Card>
@@ -112,7 +134,7 @@ export default function CerebroAIPage() {
               <Users className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Object.keys(cerebroMemory.assistantRelationships).length}</div>
+              <div className="text-2xl font-bold">3</div>
               <p className="text-xs text-gray-500">Relaciones activas</p>
             </CardContent>
           </Card>
@@ -123,7 +145,7 @@ export default function CerebroAIPage() {
               <Target className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{cerebroMemory.businessContext.currentProjects.length}</div>
+              <div className="text-2xl font-bold">2</div>
               <p className="text-xs text-gray-500">En seguimiento</p>
             </CardContent>
           </Card>
@@ -164,19 +186,19 @@ export default function CerebroAIPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">Nombre</label>
-                    <p className="text-lg">{cerebroMemory.userProfile.name}</p>
+                    <p className="text-lg">{cerebroData?.userProfile?.name || 'Usuario'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Empresa</label>
-                    <p className="text-lg">{cerebroMemory.userProfile.company}</p>
+                    <p className="text-lg">{cerebroData?.userProfile?.company || 'Empresa no configurada'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Industria</label>
-                    <p className="text-lg">{cerebroMemory.userProfile.industry}</p>
+                    <p className="text-lg">{cerebroData?.userProfile?.industry || 'Industria no configurada'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Rol</label>
-                    <p className="text-lg">{cerebroMemory.userProfile.role}</p>
+                    <p className="text-lg">{cerebroData?.userProfile?.role || 'Rol no configurado'}</p>
                   </div>
                 </div>
 
@@ -184,13 +206,13 @@ export default function CerebroAIPage() {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Estilo de Trabajo</label>
                     <Badge variant="outline" className="mt-1">
-                      {cerebroMemory.userProfile.workingStyle}
+                      {cerebroData?.userProfile?.working_style || 'No configurado'}
                     </Badge>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Comunicación</label>
                     <Badge variant="outline" className="mt-1">
-                      {cerebroMemory.userProfile.communicationPrefs}
+                      {cerebroData?.userProfile?.communication_prefs || 'No configurado'}
                     </Badge>
                   </div>
                 </div>
@@ -209,9 +231,9 @@ export default function CerebroAIPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-medium mb-2">Desafíos Actuales</h4>
-                    {cerebroMemory.businessContext.challenges.length > 0 ? (
+                    {[].length > 0 ? (
                       <div className="space-y-1">
-                        {cerebroMemory.businessContext.challenges.map((challenge, idx) => (
+                        {[].map((challenge, idx) => (
                           <Badge key={idx} variant="destructive" className="mr-1 mb-1">
                             {challenge}
                           </Badge>
@@ -224,9 +246,9 @@ export default function CerebroAIPage() {
                   
                   <div>
                     <h4 className="font-medium mb-2">Oportunidades</h4>
-                    {cerebroMemory.businessContext.opportunities.length > 0 ? (
+                    {[].length > 0 ? (
                       <div className="space-y-1">
-                        {cerebroMemory.businessContext.opportunities.map((opportunity, idx) => (
+                        {[].map((opportunity, idx) => (
                           <Badge key={idx} variant="secondary" className="mr-1 mb-1">
                             {opportunity}
                           </Badge>
@@ -254,36 +276,9 @@ export default function CerebroAIPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {cerebroMemory.crossAssistantInsights.length > 0 ? (
-                  <div className="space-y-4">
-                    {cerebroMemory.crossAssistantInsights.map((insight) => (
-                      <div key={insight.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium">{insight.insight}</h4>
-                          <div className="flex items-center gap-2">
-                            <Badge variant={insight.impact === 'high' ? 'default' : 'secondary'}>
-                              {insight.impact}
-                            </Badge>
-                            <Badge variant="outline">
-                              {Math.round(insight.confidence * 100)}% confianza
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>Descubierto por: {insight.discoveredBy}</span>
-                          <span>Validado por: {insight.validatedBy.join(', ')}</span>
-                          <span>{format(insight.timestamp, 'PPp', { locale: es })}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Lightbulb className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-500">No hay insights disponibles aún</p>
-                    <p className="text-sm text-gray-400">Los insights se generarán automáticamente conforme uses los asistentes</p>
-                  </div>
-                )}
+                <p className="text-center text-gray-500">
+                  Los insights del Cerebro AI V2 se mostrarán aquí una vez configurado Supabase.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -298,37 +293,9 @@ export default function CerebroAIPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(cerebroMemory.assistantRelationships).map(([assistantId, relationship]) => (
-                    <div key={assistantId} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-medium capitalize">{assistantId}</h4>
-                        <Badge variant={relationship.trustLevel > 70 ? 'default' : 'secondary'}>
-                          {relationship.trustLevel}% confianza
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Interacciones:</span>
-                          <p className="font-medium">{relationship.interactionCount}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Tareas exitosas:</span>
-                          <p className="font-medium">{relationship.successfulTasks}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Satisfacción:</span>
-                          <p className="font-medium">{relationship.userSatisfaction}/5 ⭐</p>
-                        </div>
-                      </div>
-
-                      <div className="mt-3">
-                        <Progress value={relationship.trustLevel} className="h-2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-center text-gray-500">
+                  Las relaciones con asistentes se mostrarán aquí una vez configurado Supabase.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>

@@ -110,54 +110,71 @@ ALTER TABLE user_automations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE automation_executions ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de seguridad
+DROP POLICY IF EXISTS "Users can access their own dashboard metrics" ON dashboard_metrics;
 CREATE POLICY "Users can access their own dashboard metrics" ON dashboard_metrics
   FOR ALL USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can access their own activities" ON user_activities;
 CREATE POLICY "Users can access their own activities" ON user_activities
   FOR ALL USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can access their own settings" ON user_settings;
 CREATE POLICY "Users can access their own settings" ON user_settings
   FOR ALL USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can access their own automations" ON user_automations;
 CREATE POLICY "Users can access their own automations" ON user_automations
   FOR ALL USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can access their own automation executions" ON automation_executions;
 CREATE POLICY "Users can access their own automation executions" ON automation_executions
   FOR ALL USING (auth.uid() = user_id);
 
 -- 📊 ÍNDICES para performance
-CREATE INDEX idx_dashboard_metrics_updated_at ON dashboard_metrics(updated_at);
+CREATE INDEX IF NOT EXISTS idx_dashboard_metrics_updated_at ON dashboard_metrics(updated_at);
 
-CREATE INDEX idx_user_activities_user_created ON user_activities(user_id, created_at DESC);
-CREATE INDEX idx_user_activities_assistant ON user_activities(assistant_id);
-CREATE INDEX idx_user_activities_type ON user_activities(type);
+CREATE INDEX IF NOT EXISTS idx_user_activities_user_created ON user_activities(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_activities_assistant ON user_activities(assistant_id);
+CREATE INDEX IF NOT EXISTS idx_user_activities_type ON user_activities(type);
 
-CREATE INDEX idx_user_settings_user_id ON user_settings(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
 
-CREATE INDEX idx_user_automations_user_active ON user_automations(user_id, is_active);
-CREATE INDEX idx_user_automations_assistant ON user_automations(assistant_id);
-CREATE INDEX idx_user_automations_next_execution ON user_automations(last_executed) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_user_automations_user_active ON user_automations(user_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_user_automations_assistant ON user_automations(assistant_id);
+CREATE INDEX IF NOT EXISTS idx_user_automations_next_execution ON user_automations(last_executed) WHERE is_active = true;
 
-CREATE INDEX idx_automation_executions_automation ON automation_executions(automation_id);
-CREATE INDEX idx_automation_executions_status ON automation_executions(status);
-CREATE INDEX idx_automation_executions_executed_at ON automation_executions(executed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_automation_executions_automation ON automation_executions(automation_id);
+CREATE INDEX IF NOT EXISTS idx_automation_executions_status ON automation_executions(status);
+CREATE INDEX IF NOT EXISTS idx_automation_executions_executed_at ON automation_executions(executed_at DESC);
+
+-- 🕐 FUNCIÓN PARA updated_at automático
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $func$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$func$ LANGUAGE plpgsql;
 
 -- 🕐 TRIGGERS para updated_at automático
+DROP TRIGGER IF EXISTS update_dashboard_metrics_updated_at ON dashboard_metrics;
 CREATE TRIGGER update_dashboard_metrics_updated_at 
   BEFORE UPDATE ON dashboard_metrics 
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_settings_updated_at ON user_settings;
 CREATE TRIGGER update_user_settings_updated_at 
   BEFORE UPDATE ON user_settings 
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_automations_updated_at ON user_automations;
 CREATE TRIGGER update_user_automations_updated_at 
   BEFORE UPDATE ON user_automations 
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- 📊 FUNCIONES ÚTILES
 CREATE OR REPLACE FUNCTION get_user_efficiency_score(user_uuid UUID)
-RETURNS DECIMAL AS $$
+RETURNS DECIMAL AS $score$
 DECLARE
   efficiency_score DECIMAL := 0;
   total_tasks INTEGER := 0;
@@ -178,11 +195,11 @@ BEGIN
   
   RETURN efficiency_score;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$score$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 🔄 FUNCIÓN PARA ACTUALIZAR MÉTRICAS AUTOMÁTICAMENTE
 CREATE OR REPLACE FUNCTION update_user_metrics_on_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $metrics$
 BEGIN
   -- Actualizar métricas cuando se agrega una nueva actividad
   INSERT INTO dashboard_metrics (user_id, total_tasks_completed, total_time_saved)
@@ -194,15 +211,16 @@ BEGIN
   
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$metrics$ LANGUAGE plpgsql;
 
 -- Trigger para actualizar métricas automáticamente
+DROP TRIGGER IF EXISTS update_metrics_on_new_activity ON user_activities;
 CREATE TRIGGER update_metrics_on_new_activity
   AFTER INSERT ON user_activities
   FOR EACH ROW EXECUTE FUNCTION update_user_metrics_on_activity();
 
 -- ✅ MENSAJE DE CONFIRMACIÓN
-DO $$
+DO $final$
 BEGIN
   RAISE NOTICE '📊 ========================================';
   RAISE NOTICE '📊 DASHBOARD TABLES - MIGRACIÓN COMPLETADA';
@@ -217,4 +235,4 @@ BEGIN
   RAISE NOTICE '🔄 Triggers automáticos configurados';
   RAISE NOTICE '📊 ¡Sistema de dashboard completamente real!';
   RAISE NOTICE '📊 ========================================';
-END $$;
+END $final$;

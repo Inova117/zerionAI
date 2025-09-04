@@ -15,7 +15,7 @@ import {
   Smile,
   Zap
 } from "lucide-react";
-import { generateAIResponse, generateConversationTitle } from "@/lib/ai-service";
+import { generateAIResponse, generateConversationTitle } from "@/lib/ai-service-v2";
 import { SmartResponse } from "@/lib/smart-responses";
 import { useAssistantStore } from "@/store/assistants";
 import { useChat } from "@/hooks/useChat";

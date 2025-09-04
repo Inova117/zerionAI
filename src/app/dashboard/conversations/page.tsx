@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { conversationMemory } from '@/lib/conversation-memory';
+import { conversationMemoryV2 as conversationMemory } from '@/lib/conversation-memory-v2';
 import { assistants } from '@/lib/assistants';
 import { MessageSquare, Search, Calendar, Clock, User, Filter, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
@@ -31,27 +31,27 @@ export default function ConversationsPage() {
     loadConversations();
   }, []);
 
-  const loadConversations = () => {
-    const conversationData: ConversationSummary[] = assistants.map(assistant => {
-      const memory = conversationMemory.getMemory(assistant.id);
-      const lastMessage = memory.messages.length > 0 
-        ? memory.messages[memory.messages.length - 1]
-        : null;
+    const loadConversations = async () => {
+    const conversationData: ConversationSummary[] = [];
+    
+    for (const assistant of assistants) {
+      const messages = await conversationMemory.getRecentMessages(assistant.id, 10);
+      const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
 
       const hoursAgo = lastMessage 
-        ? (Date.now() - new Date(lastMessage.timestamp).getTime()) / (1000 * 60 * 60)
+        ? (Date.now() - new Date(lastMessage.created_at || Date.now()).getTime()) / (1000 * 60 * 60)
         : 999;
 
-      return {
+      conversationData.push({
         assistantId: assistant.id,
         assistantName: assistant.name,
         lastMessage: lastMessage ? lastMessage.content.substring(0, 100) + '...' : 'Sin mensajes aún',
-        timestamp: lastMessage ? new Date(lastMessage.timestamp) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        messageCount: memory.messages.length,
+        timestamp: lastMessage ? new Date(lastMessage.created_at || Date.now()) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        messageCount: messages.length,
         status: hoursAgo < 1 ? 'active' : hoursAgo < 24 ? 'idle' : 'archived',
         avatar: assistant.avatar
-      };
-    });
+      } as ConversationSummary);
+    }
 
     setConversations(conversationData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
   };

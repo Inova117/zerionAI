@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { dashboardMetrics, DashboardMetrics, ActivityEvent } from '@/lib/dashboard-metrics';
+import { dashboardMetricsV2 as dashboardMetrics, type DashboardMetrics } from '@/lib/dashboard-metrics-v2';
+import { type ActivityEvent } from '@/lib/supabase-services';
 
 export function useDashboardMetrics() {
   const [metrics, setMetrics] = useState<DashboardMetrics>(dashboardMetrics.getMetrics());

@@ -123,6 +123,17 @@ class CerebroAIV2 {
     this.initializeAuth();
   }
 
+  // 🔐 MÉTODO PARA OBTENER EL USER ID ACTUAL
+  async getCurrentUserId(): Promise<string | null> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.id || null;
+    } catch (error) {
+      console.warn('Failed to get current user ID:', error);
+      return null;
+    }
+  }
+
   private async initializeAuth() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
