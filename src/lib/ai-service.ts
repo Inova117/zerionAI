@@ -4,6 +4,8 @@ import { smartResponseGenerator, SmartResponse } from './smart-responses';
 import { dashboardMetrics } from './dashboard-metrics';
 import { huggingFaceService, AIResponse } from './huggingface-service';
 import { cerebroAI } from './cerebro-ai';
+import { cerebroAIV2 } from './cerebro-ai-v2';
+import { imageGenerationService } from './image-generation-service';
 
 // Simulated responses for each assistant
 const assistantResponses: Record<string, string[]> = {
@@ -90,17 +92,17 @@ export async function generateAIResponse(
   // Add user message to memory
   conversationMemory.addMessage(assistant.id, 'user', userMessage);
 
-  // 🧠 CEREBRO AI: Analizar comportamiento del usuario
-  const cerebroInsights = await cerebroAI.analyzeUserBehavior(assistant.id, {
+  // 🧠 CEREBRO AI V2: Analizar comportamiento del usuario con persistencia real
+  const cerebroInsights = await cerebroAIV2.analyzeUserBehavior(assistant.id, {
     message: userMessage,
     timestamp: new Date(),
     context: conversationHistory
   });
 
-  // 🧠 CEREBRO AI: Actualizar relación con asistente
-  cerebroAI.updateAssistantRelationship(assistant.id, {
-    lastInteraction: new Date(),
-    interactionCount: (cerebroAI.getMemory().assistantRelationships[assistant.id]?.interactionCount || 0) + 1
+  // 🧠 CEREBRO AI V2: Actualizar relación con asistente (persistencia real)
+  await cerebroAIV2.updateAssistantRelationship(assistant.id, {
+    interaction_count: ((await cerebroAIV2.getAssistantRelationship(assistant.id))?.interaction_count || 0) + 1,
+    last_interaction: new Date().toISOString()
   });
 
   try {
@@ -135,9 +137,9 @@ export async function generateAIResponse(
         smartResponse.metadata
       );
 
-      // 🧠 CEREBRO AI: Registrar interacción exitosa
-      cerebroAI.updateAssistantRelationship(assistant.id, {
-        successfulTasks: (cerebroAI.getMemory().assistantRelationships[assistant.id]?.successfulTasks || 0) + 1
+      // 🧠 CEREBRO AI V2: Registrar interacción exitosa
+      await cerebroAIV2.updateAssistantRelationship(assistant.id, {
+        successful_tasks: ((await cerebroAIV2.getAssistantRelationship(assistant.id))?.successful_tasks || 0) + 1
       });
 
       console.log(`✅ AI Response from ${aiResponse.model} in ${aiResponse.processing_time}ms`);
@@ -204,6 +206,86 @@ export async function generateAIResponse(
 // Export for backward compatibility
 export { generateAIResponse as simulateAIResponse };
 
+// 🎨 FUNCIÓN ESPECIALIZADA PARA SOFÍA (SOCIAL MEDIA + IMÁGENES)
+export async function generateSocialMediaContent(
+  userMessage: string,
+  conversationHistory: any[] = [],
+  options: {
+    platform?: 'instagram' | 'facebook' | 'linkedin' | 'twitter' | 'tiktok';
+    includeImage?: boolean;
+    style?: 'professional' | 'casual' | 'creative' | 'minimalist' | 'vibrant';
+    brand?: { colors?: string[]; fonts?: string[]; logoUrl?: string; };
+  } = {}
+): Promise<SmartResponse & { imageData?: string; imageUrl?: string }> {
+  
+  // Buscar asistente Sofía
+  const sofia = { 
+    id: 'sofia', 
+    name: 'Sofía',
+    role: 'Social Media Manager',
+    color: 'bg-pink-500'
+  } as any;
+
+  // Generar respuesta de IA normal
+  const aiResponse = await generateAIResponse(sofia, userMessage, conversationHistory);
+
+  // Si se solicita imagen, generarla
+  if (options.includeImage) {
+    try {
+      console.log('🎨 Generando imagen para contenido de redes sociales...');
+      
+      const imageResponse = await imageGenerationService.generateSocialMediaPost({
+        text: userMessage,
+        platform: options.platform || 'instagram',
+        style: options.style || 'professional',
+        brand: options.brand
+      });
+
+      if (imageResponse.success) {
+        console.log('✅ Imagen generada exitosamente');
+        return {
+          ...aiResponse,
+          imageData: imageResponse.imageData,
+          imageUrl: imageResponse.imageUrl,
+          metadata: {
+            ...aiResponse.metadata,
+            image_generated: true,
+            image_style: imageResponse.style_applied,
+            image_prompt: imageResponse.prompt_used,
+            generation_time: imageResponse.generation_time
+          }
+        };
+      } else {
+        console.warn('⚠️ Fallo en generación de imagen:', imageResponse.error);
+        
+        // Agregar mensaje sobre la imagen fallida
+        return {
+          ...aiResponse,
+          content: aiResponse.content + '\n\n💡 *Nota: No pude generar la imagen solicitada, pero aquí tienes el contenido de texto optimizado.*',
+          metadata: {
+            ...aiResponse.metadata,
+            image_generation_failed: true,
+            image_error: imageResponse.error
+          }
+        };
+      }
+    } catch (error) {
+      console.error('🎨 Error en generación de imagen:', error);
+      
+      return {
+        ...aiResponse,
+        content: aiResponse.content + '\n\n💡 *Nota: Hubo un problema técnico con la generación de imagen, pero el contenido está listo.*',
+        metadata: {
+          ...aiResponse.metadata,
+          image_generation_error: (error as Error).message
+        }
+      };
+    }
+  }
+
+  return aiResponse;
+}
+
 // Helper functions for metrics
 function getTimeSavedForTask(taskType: string): number {
   const timeSavings: { [key: string]: number } = {
@@ -252,7 +334,7 @@ export async function simulateAIResponseLegacy(
   userMessage: string,
   conversationHistory: any[] = []
 ): Promise<string> {
-  const smartResponse = await simulateAIResponse(assistant, userMessage, conversationHistory);
+  const smartResponse = await generateAIResponse(assistant, userMessage, conversationHistory);
   return smartResponse.content;
 }
 

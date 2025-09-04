@@ -77,14 +77,20 @@ export interface CerebroMemory {
 }
 
 interface CerebroInsight {
-  type: 'pattern' | 'opportunity' | 'risk' | 'optimization';
-  title: string;
-  description: string;
-  evidence: string[];
-  recommendations: string[];
-  assistantsToInvolve: string[];
+  id?: string;
+  type: 'pattern' | 'opportunity' | 'risk' | 'optimization' | 'behavior' | 'activity';
+  assistantId?: string;
+  title?: string;
+  description?: string;
+  content?: string;
+  evidence?: string[];
+  recommendations?: string[];
+  assistantsToInvolve?: string[];
   confidence: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  timestamp?: Date;
+  actionable?: boolean;
+  relatedInsights?: any[];
 }
 
 class CerebroAI {
