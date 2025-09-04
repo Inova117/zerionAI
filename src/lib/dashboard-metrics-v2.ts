@@ -214,7 +214,6 @@ class DashboardMetricsV2 {
         description: `${assistantName} generó el archivo ${fileName}`,
         metadata: {
           file_name: fileName,
-          file_type: metadata.fileType,
           time_saved: metadata.timeSaved,
           impact: metadata.impact
         }
@@ -251,7 +250,6 @@ class DashboardMetricsV2 {
         title: `Automatización configurada: ${automationType}`,
         description: `${assistantName} configuró automatización de ${automationType}`,
         metadata: {
-          automation_type: automationType,
           time_saved: metadata.timeSaved,
           impact: metadata.impact
         }

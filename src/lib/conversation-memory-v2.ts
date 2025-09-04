@@ -97,7 +97,9 @@ class ConversationMemoryV2 {
   ) {
     await this.initializeAssistant(assistantId);
 
-    const message: ConversationMessage = {
+    // Como ConversationMessage requiere user_id, pero el servicio ya lo maneja internamente,
+    // pasamos el mensaje sin user_id que el servicio añadirá automáticamente
+    const messageData = {
       assistant_id: assistantId,
       conversation_id: `conv_${assistantId}_${Date.now()}`,
       role,
@@ -108,12 +110,18 @@ class ConversationMemoryV2 {
 
     try {
       // Guardar en Supabase
-      await supabaseConversationService.addMessage(message);
+      await supabaseConversationService.addMessage(messageData);
 
       // Actualizar memoria local
       const memory = this.storage[assistantId];
       if (memory) {
-        memory.messages.push(message);
+        // Crear mensaje completo para memoria local (user_id se añade en Supabase)
+        const memoryMessage: ConversationMessage = {
+          ...messageData,
+          user_id: 'local_user', // Placeholder - en Supabase se usará el real
+          id: `local_${Date.now()}`
+        };
+        memory.messages.push(memoryMessage);
         memory.totalInteractions += 1;
         memory.context.lastInteractionTime = new Date();
 
@@ -133,7 +141,12 @@ class ConversationMemoryV2 {
       // Fallback: agregar solo a memoria local
       const memory = this.storage[assistantId];
       if (memory) {
-        memory.messages.push(message);
+        const fallbackMessage: ConversationMessage = {
+          ...messageData,
+          user_id: 'local_user',
+          id: `fallback_${Date.now()}`
+        };
+        memory.messages.push(fallbackMessage);
         memory.totalInteractions += 1;
       }
     }
