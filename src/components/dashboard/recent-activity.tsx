@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDashboardActivities } from "@/hooks/useDashboardMetrics";
 import { 
-  MessageSquare, 
   CheckCircle, 
   Clock, 
   ExternalLink,
-  Bot,
   Zap,
   FileText,
   Settings,

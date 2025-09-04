@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase-client';
-import { Database } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
+import { Database } from '@/lib/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
+// TODO: Add user_subscriptions table to database schema
+// type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
 
 interface AuthState {
   user: User | null;
   profile: Profile | null;
-  subscription: Subscription | null;
+  subscription: any | null; // TODO: Replace with proper Subscription type when table exists
   loading: boolean;
 }
 
@@ -22,8 +23,6 @@ export function useAuth() {
     subscription: null,
     loading: true,
   });
-
-  const supabase = createClient();
 
   useEffect(() => {
     // Get initial session

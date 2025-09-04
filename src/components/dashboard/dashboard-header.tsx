@@ -3,23 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AutomationIndicator } from "./automation-indicator";
-import { ThemeToggle } from "./theme-toggle";
-import { AudioSettings } from "./audio-settings";
-import { AIStatus } from "./ai-status";
 import { 
   Menu, 
   Bell, 
   Search, 
   Plus,
   Zap,
-  MessageSquare,
-  Brain
+  MessageSquare
 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useAssistantStore } from "@/store/assistants";
 
 interface DashboardHeaderProps {

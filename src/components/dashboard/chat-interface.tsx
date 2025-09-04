@@ -8,19 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Send, 
   MoreVertical, 
-  Copy, 
-  ThumbsUp, 
-  ThumbsDown,
   Paperclip,
   Smile,
   Zap
 } from "lucide-react";
-import { generateAIResponse, generateConversationTitle } from "@/lib/ai-service-v2";
-import { SmartResponse } from "@/lib/smart-responses";
+import { generateAIResponse } from "@/lib/ai-service-v2";
 import { useAssistantStore } from "@/store/assistants";
-import { useChat } from "@/hooks/useChat";
 import { Assistant } from "@/lib/assistants";
-import { cn } from "@/lib/utils";
 import { MessageRenderer } from "./message-renderer";
 import { audioSystem } from "@/lib/audio-system";
 
@@ -108,7 +102,7 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
         };
 
         setMessages([welcomeMessage]);
-      } catch (error) {
+      } catch {
         // Fallback welcome message
         setMessages([{
           id: "welcome",

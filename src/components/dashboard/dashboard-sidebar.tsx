@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -13,7 +11,6 @@ import {
   Settings, 
   CreditCard,
   HelpCircle,
-  X,
   Bot,
   Zap,
   Clock,

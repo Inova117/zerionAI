@@ -53,8 +53,7 @@ export async function generateAIResponse(
           model: aiResponse.model,
           confidence: 0.9, // Alta confianza en IA real
           cerebro_insights: cerebroInsights.length,
-          cerebro_active: true,
-          source: 'huggingface_api'
+          cerebro_active: true
         }
       };
 
@@ -176,13 +175,7 @@ async function generateIntelligentFallback(
     ai_generated: false,
     confidence: 0.7,
     cerebro_insights: insights.length,
-    cerebro_active: true,
-    source: 'intelligent_fallback',
-    context_used: {
-      user_preferences: userPreferences.length,
-      business_context: businessContext.length,
-      relationship_strength: relationship?.trust_level || 0
-    }
+    cerebro_active: true
   };
 
   return response;
@@ -252,7 +245,6 @@ function generateEmergencyResponse(assistant: Assistant, userMessage: string): S
     metadata: {
       ai_generated: false,
       confidence: 0.3,
-      source: 'emergency_response',
       cerebro_active: false
     }
   };

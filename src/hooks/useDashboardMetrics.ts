@@ -37,24 +37,20 @@ export function useDashboardActivities(limit: number = 10) {
   useEffect(() => {
     const fetchActivities = async () => {
       setIsLoading(true);
-      const initialActivities = await dashboardMetrics.getActivities(limit);
-      setActivities(initialActivities);
+      const initialActivities = await dashboardMetrics.getActivities();
+      setActivities(initialActivities.slice(0, limit));
       setIsLoading(false);
     };
 
     fetchActivities();
 
-    // Subscribe to updates
-    const unsubscribe = dashboardMetrics.subscribeToActivities((newActivities) => {
-      setActivities(prevActivities => {
-        const updatedActivities = [...newActivities, ...prevActivities];
-        // Remove duplicates and limit
-        const uniqueActivities = Array.from(new Map(updatedActivities.map(a => [a.id, a])).values());
-        return uniqueActivities.slice(0, limit);
-      });
-    });
+    // TODO: Implement subscribeToActivities in DashboardMetricsV2
+    // For now, just polling every 30 seconds
+    const interval = setInterval(() => {
+      fetchActivities();
+    }, 30000);
 
-    return unsubscribe;
+    return () => clearInterval(interval);
   }, [limit]);
 
   return {
