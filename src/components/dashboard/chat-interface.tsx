@@ -15,7 +15,7 @@ import {
   Smile,
   Zap
 } from "lucide-react";
-import { simulateAIResponse, generateConversationTitle } from "@/lib/ai-service";
+import { generateAIResponse, generateConversationTitle } from "@/lib/ai-service";
 import { SmartResponse } from "@/lib/smart-responses";
 import { useAssistantStore } from "@/store/assistants";
 import { useChat } from "@/hooks/useChat";
@@ -50,12 +50,33 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { isTyping, setTyping } = useAssistantStore();
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom with smooth animation
+  const scrollToBottom = (smooth = true, delay = 0) => {
+    setTimeout(() => {
+      if (scrollAreaRef.current) {
+        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: smooth ? 'smooth' : 'auto'
+          });
+        }
+      }
+    }, delay);
+  };
+
+  // Auto scroll when messages change
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    // Immediate scroll for better responsiveness
+    scrollToBottom(true, 50);
+  }, [messages]);
+
+  // Separate effect for typing indicator
+  useEffect(() => {
+    if (isTyping) {
+      scrollToBottom(true, 100);
     }
-  }, [messages, isTyping]);
+  }, [isTyping]);
 
   // Focus input on mount
   useEffect(() => {
@@ -70,7 +91,7 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
     // Simulate initial loading and then show welcome
     setTimeout(async () => {
       try {
-        const welcomeResponse = await simulateAIResponse(
+        const welcomeResponse = await generateAIResponse(
           assistant,
           "¡Hola! Soy nuevo usuario",
           []
@@ -116,10 +137,13 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
     setInputMessage("");
     setIsLoading(true);
     setTyping(true);
+    
+    // Scroll immediately after adding user message
+    setTimeout(() => scrollToBottom(true), 50);
 
     try {
-      // Simulate AI response with enhanced intelligence
-      const smartResponse = await simulateAIResponse(
+      // Get AI response with enhanced intelligence via Hugging Face
+      const smartResponse = await generateAIResponse(
         assistant, 
         userMessage.content, 
         messages.filter(m => m.role === 'user')
@@ -216,8 +240,8 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
       </div>
 
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 custom-scrollbar">
-        <div className="space-y-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 custom-scrollbar chat-scroll-area">
+        <div className="space-y-4 min-h-full">
           {messages.map((message) => (
             <MessageRenderer
               key={message.id}
@@ -229,7 +253,7 @@ export function ChatInterface({ assistant }: ChatInterfaceProps) {
 
           {/* Enhanced Typing Indicator */}
           {isTyping && (
-            <div className="flex justify-start animate-fadeInUp">
+            <div className="flex justify-start typing-indicator">
               <div className="bg-gray-100 rounded-2xl px-4 py-3 border border-gray-200 hover-lift">
                 <div className="flex items-center space-x-2">
                   <div className={`w-6 h-6 rounded ${assistant.color} flex items-center justify-center text-xs animate-pulse-soft`}>

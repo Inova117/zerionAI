@@ -150,35 +150,10 @@ class CerebroAI {
       const conversationHistory = conversationMemory.getRecentMessages(assistantId, 20);
       const userMessages = conversationHistory.filter(m => m.role === 'user');
       
-      // Crear prompt para análisis de comportamiento
-      const analysisPrompt = `
-        Analiza el comportamiento del usuario basándote en estas interacciones:
-        
-        PERFIL ACTUAL: ${JSON.stringify(this.memory.userProfile)}
-        MENSAJES RECIENTES: ${userMessages.slice(-10).map(m => m.content).join('\n')}
-        MÉTRICAS: ${JSON.stringify(dashboardMetrics.getMetrics())}
-        
-        Identifica:
-        1. Patrones de comunicación
-        2. Preferencias de trabajo
-        3. Objetivos implícitos
-        4. Oportunidades de mejora
-        
-        Responde en formato JSON con insights accionables.
-      `;
-
-      // Usar IA para análisis
-      const aiResponse = await huggingFaceService.generateResponse(
-        { id: 'cerebro', name: 'Cerebro AI', role: 'Analyst' } as any,
-        analysisPrompt,
-        conversationHistory
-      );
-
-      if (aiResponse.success) {
-        // Parsear respuesta de IA y convertir a insights
-        const analysisResult = this.parseAIAnalysis(aiResponse.content);
-        insights.push(...analysisResult);
-      }
+      // Para la demo, usar análisis local en lugar de llamar a IA
+      // Esto evita errores y es más rápido para el MVP
+      const simulatedInsights = this.generateSimulatedInsights(assistantId, interaction);
+      insights.push(...simulatedInsights);
 
       // Análisis basado en reglas (fallback)
       const ruleBasedInsights = this.analyzeWithRules(assistantId, interaction);
@@ -220,15 +195,8 @@ class CerebroAI {
         Responde como si fueras el Cerebro AI informando a ${toAssistant}.
       `;
 
-      const aiResponse = await huggingFaceService.generateResponse(
-        { id: 'cerebro', name: 'Cerebro AI', role: 'Context Manager' } as any,
-        transferPrompt,
-        []
-      );
-
-      if (aiResponse.success) {
-        return aiResponse.content;
-      }
+      // Para la demo, generar contexto simulado
+      return this.generateSimulatedContextTransfer(fromAssistant, toAssistant, context);
 
     } catch (error) {
       console.error('Error sharing context:', error);
@@ -444,6 +412,69 @@ class CerebroAI {
     } catch (error) {
       console.error('Error saving Cerebro memory:', error);
     }
+  }
+
+  private generateSimulatedInsights(assistantId: string, interaction: any): CerebroInsight[] {
+    const insights: CerebroInsight[] = [];
+    
+    // Generar insights basados en la interacción
+    if (interaction.message && interaction.message.length > 100) {
+      insights.push({
+        id: `insight_${Date.now()}_1`,
+        type: 'pattern',
+        assistantId,
+        content: 'Usuario tiende a dar contexto detallado en sus consultas',
+        confidence: 0.8,
+        timestamp: new Date(),
+        actionable: true,
+        relatedInsights: []
+      });
+    }
+
+    if (interaction.message && (interaction.message.includes('urgente') || interaction.message.includes('rápido'))) {
+      insights.push({
+        id: `insight_${Date.now()}_2`,
+        type: 'behavior',
+        assistantId,
+        content: 'Usuario prioriza respuestas rápidas y soluciones inmediatas',
+        confidence: 0.9,
+        timestamp: new Date(),
+        actionable: true,
+        relatedInsights: []
+      });
+    }
+
+    // Insight general basado en timestamp
+    insights.push({
+      id: `insight_${Date.now()}_3`,
+      type: 'activity',
+      assistantId,
+      content: `Interacción registrada con ${assistantId} - patrones de uso actualizados`,
+      confidence: 0.7,
+      timestamp: new Date(),
+      actionable: false,
+      relatedInsights: []
+    });
+
+    return insights;
+  }
+
+  private generateSimulatedContextTransfer(fromAssistant: string, toAssistant: string, context: any): string {
+    return `🧠 Cerebro AI - Transfer de Contexto
+
+    FROM: ${fromAssistant} → TO: ${toAssistant}
+    
+    CONTEXTO RELEVANTE:
+    - Usuario trabajó en: ${context.lastTask || 'Proyecto general'}
+    - Estilo de comunicación: Directo y orientado a resultados
+    - Preferencias: Soluciones prácticas y ejemplos concretos
+    
+    RECOMENDACIONES PARA ${toAssistant}:
+    - Mantener el mismo nivel de detalle
+    - Proporcionar ejemplos aplicables
+    - Seguir el formato establecido previamente
+    
+    Este contexto te ayudará a continuar la conversación de manera fluida.`;
   }
 }
 

@@ -47,13 +47,30 @@ function ChatPageContent() {
 
   return (
     <div className="flex h-full bg-white">
-      {/* Assistant Info Sidebar */}
-      <div className="hidden xl:block w-80 border-r border-gray-200 bg-white flex-shrink-0">
+      {/* Assistant Info Sidebar - Desktop */}
+      <div className="hidden lg:block w-80 border-r border-gray-200 bg-white flex-shrink-0">
         <AssistantInfo assistant={selectedAssistant} />
       </div>
 
       {/* Chat Interface */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Assistant Header */}
+        <div className="lg:hidden border-b border-gray-200 bg-white p-4">
+          <div className="flex items-center space-x-3">
+            <div className={`w-10 h-10 rounded-xl ${selectedAssistant.color} flex items-center justify-center text-lg`}>
+              {selectedAssistant.avatar}
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900">{selectedAssistant.name}</h3>
+              <p className="text-sm text-gray-600">{selectedAssistant.role}</p>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-green-600 font-medium">En línea</span>
+            </div>
+          </div>
+        </div>
+        
         <ChatInterface assistant={selectedAssistant} />
       </div>
     </div>

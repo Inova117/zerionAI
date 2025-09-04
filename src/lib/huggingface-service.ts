@@ -6,7 +6,7 @@ import { assistantPrompts, getContextualizedPrompt } from './assistant-prompts';
 
 // Hugging Face API configuration
 const HF_API_URL = 'https://api-inference.huggingface.co/models';
-const HF_API_TOKEN = process.env.NEXT_PUBLIC_HUGGINGFACE_API_KEY;
+const HF_API_TOKEN = process.env.NEXT_PUBLIC_HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_KEY;
 
 // Available models for our beta phase
 const MODELS = {
@@ -76,6 +76,22 @@ class HuggingFaceService {
     conversationHistory: any[] = []
   ): Promise<AIResponse> {
     const startTime = Date.now();
+    
+    console.log('🤖 HuggingFace Service: Generating AI response for', assistant.name);
+    
+    if (!HF_API_TOKEN) {
+      console.warn('⚠️ Hugging Face API token not found, falling back to local response');
+      const processingTime = Date.now() - startTime;
+      return {
+        content: this.getFallbackResponse(assistant, userMessage),
+        model: 'fallback',
+        processing_time: processingTime,
+        success: false,
+        error: 'No API token configured'
+      };
+    }
+    
+    console.log('✅ HuggingFace Service: API token found, making request to HF API');
 
     try {
       // Get the assistant's specific prompt
@@ -105,8 +121,10 @@ class HuggingFaceService {
       let response: HuggingFaceResponse;
       let usedModel: string = MODELS.primary;
 
+      console.log('🚀 Making request to HuggingFace API with model:', MODELS.primary);
       try {
         response = await this.makeRequest(MODELS.primary, formattedPrompt);
+        console.log('✅ HuggingFace API response received successfully');
       } catch (primaryError) {
         console.warn('Primary model failed, trying fallback:', primaryError);
         

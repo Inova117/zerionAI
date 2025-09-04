@@ -65,8 +65,8 @@ export function CerebroInsights() {
     <div className="space-y-6">
       {/* Header Card */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col space-y-3">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
                 <Brain className="h-5 w-5 text-purple-600" />
@@ -78,19 +78,21 @@ export function CerebroInsights() {
             </div>
             <div className="flex items-center gap-2">
               <Button 
+                type="button"
                 variant="outline" 
                 size="sm" 
                 onClick={generatePredictions}
                 disabled={isLoading}
+                className="flex-1"
               >
                 {isLoading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin mr-1" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4 mr-1" />
                 )}
                 Predecir
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="flex-1">
                 <Link href="/dashboard/brain/cerebro">
                   Ver Todo
                 </Link>
@@ -98,19 +100,19 @@ export function CerebroInsights() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{totalInsights}</div>
-              <div className="text-sm text-gray-600">Insights</div>
+            <div className="text-center p-3 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600 mb-1">{totalInsights}</div>
+              <div className="text-xs text-gray-600 font-medium">Insights</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{activeRelationships}</div>
-              <div className="text-sm text-gray-600">Asistentes</div>
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 mb-1">{activeRelationships}</div>
+              <div className="text-xs text-gray-600 font-medium">Asistentes</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{avgTrustLevel}%</div>
-              <div className="text-sm text-gray-600">Confianza</div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 mb-1">{avgTrustLevel}%</div>
+              <div className="text-xs text-gray-600 font-medium">Confianza</div>
             </div>
           </div>
         </CardContent>

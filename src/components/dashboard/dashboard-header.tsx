@@ -30,12 +30,13 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { activeAssistant, conversations } = useAssistantStore();
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-4 lg:px-6 flex-shrink-0">
+    <header className="bg-white border-b border-gray-200 px-4 py-3 lg:px-6 flex-shrink-0">
       <div className="flex items-center justify-between">
         {/* Left Side */}
         <div className="flex items-center space-x-4">
           {/* Mobile Menu Button */}
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             className="lg:hidden"
@@ -69,63 +70,48 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           {/* Automation Indicator */}
           <div className="hidden lg:block">
             <AutomationIndicator />
           </div>
           
-          {/* Stats */}
-          <div className="hidden sm:flex items-center space-x-4 text-sm text-gray-600">
+          {/* Stats - Simplified */}
+          <div className="hidden lg:flex items-center space-x-3 text-sm text-gray-600 px-3 py-1 bg-gray-50 rounded-lg">
             <div className="flex items-center">
               <MessageSquare className="w-4 h-4 mr-1" />
-              <span>{conversations.length} conversaciones</span>
+              <span>{conversations.length}</span>
             </div>
             <div className="flex items-center">
               <Zap className="w-4 h-4 mr-1 text-yellow-500" />
-              <span>2,847 tareas</span>
+              <span>2.8k</span>
             </div>
           </div>
 
-          {/* AI Status */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="button-press">
-                <Brain className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
-              <AIStatus />
-            </PopoverContent>
-          </Popover>
+          {/* Essential Actions */}
+          <div className="flex items-center space-x-1">
+            {/* Quick Actions */}
+            <Button type="button" size="sm" variant="outline" className="hidden sm:flex">
+              <Plus className="h-4 w-4 mr-1" />
+              Nuevo
+            </Button>
 
-          {/* Audio Settings */}
-          <AudioSettings />
+            {/* Notifications */}
+            <Button type="button" variant="ghost" size="sm" className="relative">
+              <Bell className="h-4 w-4" />
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 h-4 w-4 text-xs p-0 flex items-center justify-center"
+              >
+                3
+              </Badge>
+            </Button>
 
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-          {/* Quick Actions */}
-          <Button size="sm" className="hidden sm:flex button-press">
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Conversación
-          </Button>
-
-          {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative button-press">
-            <Bell className="h-5 w-5" />
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center animate-pulse-soft"
-            >
-              3
-            </Badge>
-          </Button>
-
-          {/* Mobile Search Button */}
-          <Button variant="ghost" size="sm" className="sm:hidden">
-            <Search className="h-5 w-5" />
-          </Button>
+            {/* Mobile Search Button */}
+            <Button type="button" variant="ghost" size="sm" className="sm:hidden">
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 

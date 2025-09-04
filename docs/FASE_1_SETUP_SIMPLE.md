@@ -344,4 +344,99 @@ SELECT * FROM profiles LIMIT 5;
 - **Feedback**: Data real para mejorar producto
 - **Momentum**: Traction antes de monetización
 
+---
+
+## **🤖 CONFIGURACIÓN DE IA REAL (OPCIONAL)**
+
+### **Para usar IA real en lugar de respuestas simuladas:**
+
+1. **Crear cuenta gratuita en Hugging Face:**
+   - Ve a [huggingface.co](https://huggingface.co) y regístrate
+   - Ve a Settings → Access Tokens
+   - Crea un nuevo token con permisos de "Read"
+
+2. **Agregar a tu archivo .env:**
+   ```bash
+   # Hugging Face API Key (para IA real)
+   NEXT_PUBLIC_HUGGINGFACE_API_KEY=hf_tu_token_aqui
+   ```
+
+3. **Reiniciar el servidor:**
+   ```bash
+   # Parar el servidor actual (Ctrl+C)
+   npm run dev
+   ```
+
+### **Cómo saber si está funcionando:**
+- ✅ **Con API key**: Los chats usan modelos de IA real (DialoGPT, BlenderBot)
+- ⚠️ **Sin API key**: Los chats usan respuestas simuladas inteligentes
+- 🔍 **Verificar**: Abre la consola del navegador (F12) y busca mensajes de "HuggingFace Service"
+
+---
+
+## **🛠️ Troubleshooting - Problemas Comunes**
+
+### **Error de Hidratación (SSR Mismatch)**
+Si ves errores como "Hydration failed because the server rendered text didn't match the client":
+
+**Causa**: Valores dinámicos que cambian entre servidor y cliente  
+**Solución**: Usar patrón de hydratación controlada:
+
+```typescript
+// ❌ Problemático
+{metrics.tasksCompleted} / {metrics.weeklyGoal}
+
+// ✅ Correcto
+{isHydrated ? `${metrics.tasksCompleted} / ${metrics.weeklyGoal}` : "12 / 25"}
+```
+
+### **Error "No prompt found for assistant"**
+**Causa**: Referencia a asistente inexistente  
+**Solución**: Verificar que el asistente esté en `assistant-prompts.ts`
+
+### **Build Error: TypeScript/ESLint**
+**Solución**:
+```bash
+# Limpiar cache y reinstalar
+rm -rf .next node_modules package-lock.json
+npm install
+npm run dev
+```
+
+### **Puerto 3000 en uso**
+**Solución**: Next.js automáticamente usa puerto 3001, 3002, etc.
+
+### **Múltiples instancias de npm run dev**
+**Solución**:
+```bash
+# Windows PowerShell
+Get-Process -Name node | Stop-Process -Force
+
+# Luego iniciar una sola instancia
+npm run dev
+```
+
+---
+
+## **✅ Estado Final - Fase 1 Completada**
+
+Has completado el **setup básico de Sintra AI LATAM**. El sistema incluye:
+- ✅ **Autenticación completa** con Supabase
+- ✅ **Dashboard funcional** con 3 asistentes  
+- ✅ **Chat interface** completamente operativo
+- ✅ **Base de datos** configurada con RLS
+- ✅ **Sistema de estado** con Zustand
+- ✅ **UI moderna** con Tailwind + Shadcn
+- ✅ **Hydratación SSR** corregida
+- ✅ **CerebroAI** funcionando localmente
+
+**Próximo paso**: Continuar con **Fase 2** para integrar:
+- 🚀 Stripe para pagos
+- 🤖 APIs de IA real (OpenAI/Anthropic)  
+- 📊 Métricas avanzadas
+- 🎯 Sistema de automatizaciones
+
+**Tiempo total**: ~60 minutos (incluyendo troubleshooting)  
+**Status**: ✅ **FASE 1 COMPLETADA**
+
 **¡Estás a 30 minutos de tener tu startup de IA funcionando con usuarios reales! 🚀**

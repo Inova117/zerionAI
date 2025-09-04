@@ -45,7 +45,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center px-6 py-4 border-b border-gray-200">
+      <div className="flex items-center px-6 py-5 border-b border-gray-200">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
             <Bot className="w-5 h-5 text-white" />

@@ -170,7 +170,7 @@ export function useChat(assistantId: string) {
 
       // Simulate AI response (replace with real AI service later)
       setTimeout(async () => {
-        const aiResponse = generateAIResponse(content, assistantId);
+        const aiResponse = generateLocalAIResponse(content, assistantId);
         
         const assistantMessage = {
           id: uuidv4(),
@@ -234,8 +234,8 @@ export function useChat(assistantId: string) {
   };
 }
 
-// Simulate AI response generation
-function generateAIResponse(userMessage: string, assistantId: string) {
+// Simulate AI response generation (local fallback)
+function generateLocalAIResponse(userMessage: string, assistantId: string) {
   const responses = {
     sofia: {
       content: `¡Perfecto! He analizado tu solicitud "${userMessage}". Voy a crear contenido para redes sociales optimizado para tu audiencia LATAM. Dame unos minutos para generar posts creativos que generen engagement.`,

@@ -47,7 +47,7 @@ export function AssistantGrid() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
       {assistants.map((assistant, index) => {
         const stats = getAssistantStats(assistant.id);
         const isActive = activeAssistant?.id === assistant.id;
@@ -57,11 +57,10 @@ export function AssistantGrid() {
           <Card
             key={assistant.id}
             className={cn(
-              "group cursor-pointer transition-all duration-300 hover:shadow-xl border-2 ripple animate-fadeInScale",
-              isActive ? "border-blue-500 bg-blue-50/50" : "border-gray-200 hover:border-blue-300",
+              "group cursor-pointer transition-all duration-300 hover:shadow-lg border border-gray-200",
+              isActive ? "border-blue-500 bg-blue-50/30 shadow-lg" : "hover:border-blue-300 hover:shadow-md",
               "transform hover:-translate-y-1"
             )}
-            style={{ animationDelay: `${index * 0.15}s` }}
             onMouseEnter={() => setHoveredCard(assistant.id)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={() => handleAssistantClick(assistant)}

@@ -82,7 +82,7 @@ const assistantResponses: Record<string, string[]> = {
 };
 
 // AI response function using Hugging Face (with fallback to simulation)
-export async function simulateAIResponse(
+export async function generateAIResponse(
   assistant: Assistant,
   userMessage: string,
   conversationHistory: any[] = []
@@ -200,6 +200,9 @@ export async function simulateAIResponse(
 
   return smartResponse;
 }
+
+// Export for backward compatibility
+export { generateAIResponse as simulateAIResponse };
 
 // Helper functions for metrics
 function getTimeSavedForTask(taskType: string): number {
