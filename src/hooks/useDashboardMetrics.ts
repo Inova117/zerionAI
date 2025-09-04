@@ -31,17 +31,27 @@ export function useDashboardMetrics() {
 }
 
 export function useDashboardActivities(limit: number = 10) {
-  const [activities, setActivities] = useState<ActivityEvent[]>(dashboardMetrics.getRecentActivities(limit));
+  const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initial load
-    setActivities(dashboardMetrics.getRecentActivities(limit));
-    setIsLoading(false);
+    const fetchActivities = async () => {
+      setIsLoading(true);
+      const initialActivities = await dashboardMetrics.getActivities(limit);
+      setActivities(initialActivities);
+      setIsLoading(false);
+    };
+
+    fetchActivities();
 
     // Subscribe to updates
     const unsubscribe = dashboardMetrics.subscribeToActivities((newActivities) => {
-      setActivities(newActivities.slice(0, limit));
+      setActivities(prevActivities => {
+        const updatedActivities = [...newActivities, ...prevActivities];
+        // Remove duplicates and limit
+        const uniqueActivities = Array.from(new Map(updatedActivities.map(a => [a.id, a])).values());
+        return uniqueActivities.slice(0, limit);
+      });
     });
 
     return unsubscribe;
