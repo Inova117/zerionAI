@@ -23,6 +23,14 @@ export interface SmartResponse {
     cerebro_insights?: number;
     cerebro_active?: boolean;
     model?: string;
+    // Image generation metadata
+    image_generated?: boolean;
+    image_style?: string;
+    image_prompt?: string;
+    generation_time?: number;
+    image_generation_failed?: boolean;
+    image_error?: string;
+    image_generation_error?: string;
   };
   followUpActions?: Array<{
     label: string;
